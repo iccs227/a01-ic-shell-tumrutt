@@ -8,14 +8,17 @@
 #include "welcome_banner.h"
 
 #define MAX_CMD_BUFFER 255
+extern int exit_code;
 
 int main() {
     // welcome();
 
     char buffer[MAX_CMD_BUFFER];
-    while (1) {
+    int resume = 1;
+    while (resume) {
         printf("icsh $ ");
         fgets(buffer, 255, stdin);
-        process_command(buffer);
+        resume = process_command(buffer);
     }
+    return exit_code;
 }
