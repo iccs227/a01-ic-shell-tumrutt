@@ -3,6 +3,8 @@
 
 void echo(char* str);
 
+void double_bang();
+
 void my_exit(char* str);
 
 #endif //BUILTINS_H

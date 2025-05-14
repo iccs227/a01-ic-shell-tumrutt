@@ -5,15 +5,25 @@
 #include "builtins.h"
 #include "string.h"
 
-int process_command(char* input) {
-    char* command = strtok(input, " ");
+extern char prev_command[];
 
-    if (strcmp(input, "\n") == 0) {
+int process_command(char* input) {
+    char input_copy[255];
+    strcpy(input_copy, input);
+    char* command = strtok(input_copy, " ");
+
+    if (strcmp(input, "\n") == 0 ||
+        strcmp(input, "") == 0) {
         return 1;
     }
     if (strcmp(command, "echo") == 0) {
         echo(input);
         return 1;
+    }
+    if (strcmp(command, "!!\n") == 0) {
+        double_bang();
+        printf("%s", prev_command);
+        return process_command(prev_command);
     }
     if (strcmp(command, "exit") == 0) {
         my_exit(input);

@@ -3,10 +3,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int exit_code = 0;
+extern int exit_code;
+extern int update_command;
 
 void echo(char* str) {
     printf("%s", str+5);
+}
+
+void double_bang() {
+    update_command = 0;
 }
 
 void my_exit(char* str) {
