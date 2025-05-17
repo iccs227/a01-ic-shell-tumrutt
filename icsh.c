@@ -3,6 +3,7 @@
  * StudentID: 6381246
  */
 
+#include <unistd.h>
 #include <string.h>
 
 #include "command_processor.h"
@@ -56,6 +57,7 @@ int main(int argc, char *argv[]) {
     // welcome();
 
     int resume = 1;
+
     while (resume) {
         printf("icsh $ ");
         fgets(buffer, 255, stdin);
