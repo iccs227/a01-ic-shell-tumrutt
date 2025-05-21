@@ -26,7 +26,7 @@ int process_command(char* input) {
         my_exit(input);
         return 0;
     }
-    if (exec_external(input) == 0) {
+    if (exec_external(input) != 1) {
         return 1;
     }
 
