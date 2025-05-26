@@ -23,10 +23,9 @@ int process_command(char* input) {
         return process_command(prev_command);
     }
     if (strncmp(input, "exit", 4) == 0) {
-        my_exit(input);
-        return 0;
+        return my_exit(input);
     }
-    if (exec_external(input) != 1) {
+    if (exec_external(input) != 255) {
         return 1;
     }
 

@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-Wall -Iinclude -g
 BINARY=icsh
-SRC = ./icsh.c ./welcome_banner.c ./builtins.c ./command_processor.c ./external.c
+SRC = ./icsh.c ./welcome_banner.c ./builtins.c ./command_processor.c ./external.c ./signal_handler.c ./file_processor.c
 OBJ = $(SRC:.c=.o)
 
 all: icsh

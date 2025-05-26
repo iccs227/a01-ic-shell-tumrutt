@@ -6,6 +6,10 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+#include "signal_handler.h"
+
+extern int exit_code;
+
 int exec_external(const char* input) {
     char input_copy[255];
     char *args[100];
@@ -21,15 +25,38 @@ int exec_external(const char* input) {
     args[i] = NULL;
 
     int status;
-    if (fork() == 0){
+    const int child_pid = fork();
+    if (child_pid == 0) {
         // child -> run external command
+        setpgrp(); // make a new process group for it
         execvp(args[0], args);
-        exit(1); // return 1 when process fail
+        exit(255); // return 255 when process fail
     }
     else {
         // parent
-        wait(&status);
+        // set the child process as foreground
+        tcsetpgrp(STDIN_FILENO, child_pid);
+
+        // temporarily block SIGTTIN and SIGTTOU so the shell doesn't get suspended
+        block_tin_tou();
+
+        // wait for the child to terminate or suspended and restore shell as foreground
+        waitpid(child_pid, &status, WUNTRACED);
+        tcsetpgrp(STDIN_FILENO, getpid());
+
+        // unblock SIGTTIN and SIGTTOU
+        unblock_tin_tou();
     }
 
-    return status;
+    // if ^C or ^Z,  print new line so it looks nice
+    if (WIFSIGNALED(status) || WIFSTOPPED(status)) {
+        printf("\n");
+        const int signal = WIFSIGNALED(status) ? WTERMSIG(status) : WSTOPSIG(status);
+        exit_code = 128 + signal;
+    }
+    else {
+        exit_code = WEXITSTATUS(status);
+    }
+
+    return WEXITSTATUS(status);
 }
