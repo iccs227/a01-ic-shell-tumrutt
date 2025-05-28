@@ -10,26 +10,25 @@
 
 extern int exit_code;
 
-int exec_external(const char* input) {
-    char input_copy[255];
-    char *args[100];
+int exec_external(const char* command, char* args) {
+    char *argv[100];
 
-    strcpy(input_copy, input);
-    char* command = strtok(input_copy, " \n");
+    argv[0] = (char*)command;
 
-    int i = 0;
-    while (command != NULL) {
-        args[i++] = command;
-        command = strtok(NULL, " \n");
+    int i = 1;
+    char* arg = strtok(args, " \n");
+    while (arg != NULL) {
+        argv[i++] = arg;
+        arg = strtok(NULL, " \n");
     }
-    args[i] = NULL;
+    argv[i] = NULL;
 
     int status;
     const int child_pid = fork();
     if (child_pid == 0) {
         // child -> run external command
         setpgrp(); // make a new process group for it
-        execvp(args[0], args);
+        execvp(argv[0], argv);
         exit(255); // return 255 when process fail
     }
     else {

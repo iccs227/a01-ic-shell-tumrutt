@@ -9,6 +9,7 @@
 
 #include "command_processor.h"
 #include "file_processor.h"
+#include "io_redirect.h"
 #include "signal_handler.h"
 #include "stdio.h"
 #include "welcome_banner.h"
@@ -17,6 +18,7 @@
 int exit_code = 0;
 int update_command = 1; // boolean determining whether to update command or not
 char prev_command[MAX_CMD_BUFFER];
+int redirected = 0;
 
 int main(int argc, char *argv[]) {
     if (argc > 1) { // process the file(s) and exit
@@ -27,6 +29,7 @@ int main(int argc, char *argv[]) {
     }
 
     // welcome();
+    // TODO: test !!
 
     setup_signal_handler();
     int resume = 1;
@@ -37,6 +40,12 @@ int main(int argc, char *argv[]) {
         fgets(buffer, 255, stdin);
 
         resume = process_command(buffer);
+
+        if (redirected) {
+            // return I/O to stdin and stdout
+            restore_io();
+            redirected = 0;
+        }
 
         if (update_command) {
             strcpy(prev_command, buffer);
