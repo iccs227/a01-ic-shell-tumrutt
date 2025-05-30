@@ -3,8 +3,23 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/wait.h>
+
+#include "jobs_controller.h"
 
 void handler(int signum) {
+    if (signum == SIGCHLD) {
+        int status;
+        int pid;
+        while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
+            // job is done
+            add_finished_job(pid);
+            delete_job(pid);
+        }
+        return;
+    }
+    // this only prints out when user do ^C w/o any process running
+    // because when a function is running, the shell does not have access to stdout
     printf("\nicsh $ ");
     fflush(stdout);
 }
@@ -16,6 +31,7 @@ void setup_signal_handler() {
     my_handler.sa_flags = SA_RESTART;
     sigaction(SIGINT, &my_handler, NULL);
     sigaction(SIGTSTP, &my_handler, NULL);
+    sigaction(SIGCHLD, &my_handler, NULL);
 }
 
 // Block signals temporarily (SIGTTIN and SIGTTOU can suspend the shell)

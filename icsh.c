@@ -10,6 +10,7 @@
 #include "command_processor.h"
 #include "file_processor.h"
 #include "io_redirect.h"
+#include "jobs_controller.h"
 #include "signal_handler.h"
 #include "stdio.h"
 #include "welcome_banner.h"
@@ -28,8 +29,7 @@ int main(int argc, char *argv[]) {
         return exit_code;
     }
 
-    // welcome();
-    // TODO: test !!
+    welcome();
 
     setup_signal_handler();
     int resume = 1;
@@ -40,6 +40,8 @@ int main(int argc, char *argv[]) {
         fgets(buffer, 255, stdin);
 
         resume = process_command(buffer);
+
+        print_finished_jobs();
 
         if (redirected) {
             // return I/O to stdin and stdout

@@ -5,9 +5,15 @@
 #include <string.h>
 
 #include "command_processor.h"
+#include "io_redirect.h"
+#include "jobs_controller.h"
+#include "signal_handler.h"
 
 #define MAX_CMD_BUFFER 255
 extern int exit_code;
+extern int redirected;
+extern int update_command;
+extern char prev_command[];
 
 void process_file(const char *file_location) {
     const char *ext =  strrchr(file_location, '.');
@@ -26,6 +32,8 @@ void process_file(const char *file_location) {
         return;
     }
 
+    setup_signal_handler();
+
     int resume = 1;
     while (resume) {
         char buffer[MAX_CMD_BUFFER];
@@ -35,6 +43,21 @@ void process_file(const char *file_location) {
             break;
         }
         resume = process_command(buffer);
+
+        print_finished_jobs();
+
+        if (redirected) {
+            // return I/O to stdin and stdout
+            restore_io();
+            redirected = 0;
+        }
+
+        if (update_command) {
+            strcpy(prev_command, buffer);
+        }
+        else {
+            update_command = 1;
+        }
     }
 
     fclose(file);
